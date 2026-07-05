@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from services.deepseek import DeepseekParser
+from services.deepseek import DeepseekParser, deepseek
 from time import time
 from pydantic import BaseModel
 
@@ -15,7 +15,7 @@ async def ask_ds(request: QueryRequest):
     t = time()
     query = request.query
     print(query)
-    ans = DeepseekParser().send(query)
+    ans = deepseek.send(query)
     print(f"🕐 Время: {time() - t}")
 
     return ans
