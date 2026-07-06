@@ -133,7 +133,6 @@ class DeepseekParser:
             sleep(1)
             
         text = md(last_text)
-        
         return text
     
     def __del__(self):

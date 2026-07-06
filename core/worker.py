@@ -5,7 +5,8 @@ import atexit
 
 
 def worker_func():
-    deepseek = DeepseekParser(field_locators_RU)
+    deepseek = DeepseekParser(field_locators_EN)
+    cnt = 0
     prompt = None
     atexit.register(deepseek.close)
     
@@ -18,12 +19,14 @@ def worker_func():
                 continue
 
             print(f"{prompt.id} - Обрабатывается")
-            
-            deepseek.create_new_chat()
+            cnt += 1
             prompts[prompt.id] = deepseek.send(prompt.query)
             print(f"{prompt.id} - Обработан")
 
             prompt = None
+            if cnt >= 10:
+                deepseek.create_new_chat()
+                cnt = 0
         except:
             try:
                 deepseek = DeepseekParser(field_locators_RU)

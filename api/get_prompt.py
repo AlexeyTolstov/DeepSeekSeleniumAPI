@@ -17,10 +17,10 @@ async def get_prompt(id: int):
             status_code=404
         )
     
-    if prompts[id] == 200:
+    if prompts[id] == 202:
         return JSONResponse(
             "Еще обрабатываем",
-            status_code=100
+            status_code=202
         )
     
     return JSONResponse(

@@ -17,13 +17,13 @@ main_queue = deque()        # Основная очередь
 
 def add_fast_prompt(prompt: Prompt):
     fast_queue.append(prompt)
-    prompts[prompt.id] = 200
+    prompts[prompt.id] = 202
     print(f"{prompt.id} - добавлен в очередь")
 
 
 def add_main_prompt(prompt: Prompt):
     main_queue.append(prompt)
-    prompts[prompt.id] = 200
+    prompts[prompt.id] = 202
     print(f"{prompt.id} - добавлен в очередь")
 
 
