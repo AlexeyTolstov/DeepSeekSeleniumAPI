@@ -12,11 +12,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 import os, platform
 from selenium import webdriver
 from pathlib import Path
-import html2text
+from markdownify import markdownify as md
 
-
-converter = html2text.HTML2Text()
-converter.ignore_links = False
 
 env_path = Path('.') / '.env'
 
@@ -61,7 +58,6 @@ class DeepseekParser:
         self.field_locator = field_locator
         self.options = webdriver.ChromeOptions()
         
-        
         self.options.add_argument("--no-sandbox")
         self.options.add_argument("--disable-dev-shm-usage")
         self.options.add_argument("--disable-gpu")
@@ -83,7 +79,6 @@ class DeepseekParser:
                 options=self.options
             )
 
-            print("fads")
         self.wait = WebDriverWait(self.driver, 25)
 
         self.login()
@@ -133,7 +128,9 @@ class DeepseekParser:
 
         field_DSeek.click()
         field_DSeek.clear()
-        field_DSeek.send_keys(query)
+        self.driver.execute_cdp_cmd(
+            "Input.insertText", { "text": query }
+        )
 
         self.wait.until(
             EC.presence_of_element_located(
@@ -159,14 +156,18 @@ class DeepseekParser:
 
             last_text = text
             sleep(1)
-        print(self.driver.current_url)
-        text = converter.handle(last_text)
+            
+        text = md(last_text)
         
         return text
+    
+    def __del__(self):
+        self.driver.quit()
+        print("Сессия закрыта")
 
 
 
-deepseek = DeepseekParser(field_locator=field_locators_RU)
+deepseek = DeepseekParser(field_locator=field_locators_EN)
 
 if __name__ == "__main__":
     q = "Расскажи анекдот"
