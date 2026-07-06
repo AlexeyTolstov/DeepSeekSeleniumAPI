@@ -7,12 +7,14 @@ from selenium.webdriver.support import expected_conditions as EC
 from time import sleep, time
 from dotenv import load_dotenv
 
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 
 import os, platform
 from selenium import webdriver
 from pathlib import Path
 from markdownify import markdownify as md
+from models import FieldLocator, field_locators_RU, field_locators_EN
 
 
 env_path = Path('.') / '.env'
@@ -21,36 +23,6 @@ load_dotenv(dotenv_path=env_path)
 
 EMAIL = os.getenv('EMAIL_DEEPSEEK', '')
 PASSWORD = os.getenv('PASSWORD_DEEPSEEK', '')
-
-
-class FieldLocator:
-    """ Хранит локализованные ключевые слова для поиска полей ввода на веб-странице. """
-
-    def __init__(self, lang: str, phone_email: str, password: str, log_in: str, msg_deepseek: str):
-        self.lang = lang
-        self.phone_email = phone_email
-        self.password = password
-        self.log_in = log_in
-        self.msg_deepseek = msg_deepseek
-
-
-field_locators_RU = FieldLocator(
-    lang="ru",
-    phone_email="Номер телефона / адрес электронной почты",
-    password="Пароль",
-    log_in="Войти",
-    msg_deepseek="Сообщение для "
-)
-
-field_locators_EN = FieldLocator(
-    lang="en",
-    phone_email="Phone number / email address",
-    password="Password",
-    log_in="Log in",
-    msg_deepseek="Message "
-)
-
-CHROME_DRIVER_VERSION = "149.0.7827.0"
 
 
 class DeepseekParser:
@@ -75,7 +47,6 @@ class DeepseekParser:
             )
         else:
             self.driver = webdriver.Chrome(
-                # service=Service(ChromeDriverManager(driver_version=CHROME_DRIVER_VERSION).install()),
                 options=self.options
             )
 
@@ -119,6 +90,10 @@ class DeepseekParser:
         ).click()
         sleep(1)
     
+    def create_new_chat(self):
+        ActionChains(self.driver).key_down(Keys.CONTROL).send_keys('j').key_up(Keys.CONTROL).perform()
+        sleep(0.3)
+
     def send(self, query: str):
         field_DSeek = self.wait.until(
             EC.presence_of_element_located(
@@ -165,12 +140,15 @@ class DeepseekParser:
         self.driver.quit()
         print("Сессия закрыта")
 
+    def close(self):
+        self.driver.quit()
+        print("Сессия закрыта")
 
-
-deepseek = DeepseekParser(field_locator=field_locators_EN)
 
 if __name__ == "__main__":
-    q = "Расскажи анекдот"
+    deepseek = DeepseekParser(field_locator=field_locators_RU)
+    q = "Ты чебурашка! Это твоя роль"
     r = deepseek.send(q)
-
-    print(r)
+    deepseek.create_new_chat()
+    q = "Кто ты?"
+    r = deepseek.send(q)

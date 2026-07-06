@@ -1,30 +1,40 @@
-from fastapi import APIRouter, Response
-from services.deepseek import DeepseekParser, deepseek
-from time import time
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from random import randint
+from core import add_fast_prompt, add_main_prompt, Prompt
 
+
+router = APIRouter()
 
 class QueryRequest(BaseModel):
     query: str
 
 
-router = APIRouter()
+@router.post('/ask_fast_ds')
+async def ask_fast_ds(request: QueryRequest):
+    prompt = Prompt(
+        randint(1, 10000000000),
+        request.query
+    )
+    add_fast_prompt(prompt)
 
-@router.post('/ask_ds')
-async def ask_ds(request: QueryRequest):
-    try:
-        t = time()
-        query = request.query
-        print(query)
-        ans = DeepseekParser().send(query)
-        print(f"🕐 Время: {time() - t}")
+    return JSONResponse(
+        {"id": prompt.id},
+        status_code=202
+    )
 
-        return Response(
-            ans,
-            status_code=200
-        )
-    except:
-        return Response(
-            "Упссс.... Возникла ошибка",
-            status_code=502
-        )
+
+@router.post('/ask_main_ds')
+async def ask_main_ds(request: QueryRequest):
+    prompt = Prompt(
+        randint(1, 10000000000),
+        request.query
+    )
+
+    add_main_prompt(prompt)
+
+    return JSONResponse(
+        {"id": prompt.id},
+        status_code=202
+    )
